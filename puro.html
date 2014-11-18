@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Listagem de Imóveis</title>
+    <link type="text/css" rel="stylesheet" id="main_css" class="navigate_remove" href="css/bootstrap.css">
+    <script type="text/javascript" src="js/libs/jquery.js"></script>
+    <script type="text/javascript" src="js/libs/underscore.js"></script>
+    <script type="text/javascript" src="js/libs/backbone.js"></script>
+</head>
+<body>
+<div id="container" class="container">
+    <div id="head" class="jumbotron"><h1 id="title" class="text-center">Escolha seu Imóvel</h1></div>
+    <div id="content" class="row col-md-10 col-md-offset-1">
+
+        <div id="items" class="list-items">
+
+
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
+
+<script type="text/template" id="imovel-item-template">
+<div id="item" class="col-md-6">
+    <div id="tipo" class="panel-body <%= background %> alert">
+        <a id="link" href="detalhado.html?<%= model.id %>" class="">
+            <p id="nome" class="lead text-center"><%= model.nome %></p>
+            <p id="bairro" class="text-center"><%= model.bairro %></p>
+        </a>
+    </div>
+</div>
+</script>
+
+<script>
+    Model = Backbone.Model.extend({
+        // Lógica de negócio vem pra cá;
+    });
+
+    Collection = Backbone.Collection.extend({
+        url: '/api/imovel',
+        model: Model,
+
+        parse: function(data) {
+            return data;
+        }
+    });
+
+    List = Backbone.View.extend({
+        el: '.list-items',
+
+        initialize: function() {
+            this.collection = new Collection();
+            this.collection.on('reset', this.render, this);
+            this.collection.fetch({reset: true});
+        },
+
+        render: function() {
+            this.collection.each(this.addItem, this);
+        },
+
+        addItem: function(model, index) {
+            var subView = new Item({ model: model, index: index});
+            subView.render();
+            this.$el.append(subView.$el)
+        }
+    });
+
+    Item = Backbone.View.extend({
+        template: _.template($('#imovel-item-template').html()),
+
+        render: function() {
+            var context = this.getContext();
+
+            this.$el.html(this.template(context))
+        },
+
+        getContext: function(){
+            return {
+                model: this.model.toJSON(),
+                background: this.getBackground()
+            };
+        },
+
+        getBackground: function() {
+            var tipo = this.model.get('tipo');
+
+            if(tipo == 'Aluguel') {
+                return 'alert-info';
+            } else if (tipo == 'Lançamento') {
+                return 'alert-success';
+            } else {
+                return 'alert-warning';
+            }
+        }
+    });
+
+    $(function() {
+        var listView = new List();
+    });
+
+
+
+</script>

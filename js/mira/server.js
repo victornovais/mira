@@ -27,7 +27,7 @@ var server = express();
 // para exibir o log
 server.use(morgan());
 // criando servidor para arquivos estaticos
-server.use(express.static(path.normalize(__dirname + '/../..'),  { maxAge: 60 * 60 * 1000 }));
+server.use(express.static(path.normalize(__dirname + '/../..')));
 
 var rules = new Rule.Collection(MiraApp.rules, {parse:true});
 var selection = new Selection.Collection(MiraApp.selection, {parse:true});
